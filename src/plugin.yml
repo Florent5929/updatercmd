@@ -1,0 +1,8 @@
+name: updatercmd
+main: com.updatercmd.Plugin
+version: 1.0.0
+api-version: 1.14
+author: Florent
+commands:
+  updatercmd:
+    description: Permet de maj les cmd blocks en version 1 14.
