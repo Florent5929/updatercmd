@@ -80,7 +80,10 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 		String oldcmd = cmdblock.getCommand();
 		String newcmd = oldcmd;
 		
-
+		//Et je confirme, c'est plus sûr et totalement fonctionnel si on replace tous les 
+		// /execute selecteur ~ ~ ~ /command 
+		// par /execute as selecteur at selecteur run command
+		
 		newcmd = oldcmd.replaceAll("execute @", "execute as @");
 		newcmd = newcmd.replaceAll("r=","distance=..");
 		newcmd = newcmd.replaceAll("~ ~ ~ /","run ");
@@ -96,12 +99,44 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 		}
 		
 		
-		if(oldcmd.contains("setblock")){
+		if(oldcmd.contains("setblock") || oldcmd.contains("fill")){
+			
+			newcmd = newcmd.replaceAll("wooden", "oak");
+			
 			newcmd = newcmd.replaceAll("wooden_button 0", "oak_button[face=ceiling]");
 			newcmd = newcmd.replaceAll("wooden_button 1", "oak_button[facing=east]");
 			newcmd = newcmd.replaceAll("wooden_button 2", "oak_button[facing=west]");
 			newcmd = newcmd.replaceAll("wooden_button 3", "oak_button[facing=south]");
 			newcmd = newcmd.replaceAll("wooden_button 4", "oak_button[face=floor]");
+			
+			newcmd = newcmd.replaceAll("chest 0", "chest[facing=north]");
+			newcmd = newcmd.replaceAll("chest 1", "chest[facing=north]");
+			newcmd = newcmd.replaceAll("chest 2", "chest[facing=north]");
+			newcmd = newcmd.replaceAll("chest 3", "chest[facing=south]");
+			newcmd = newcmd.replaceAll("chest 4", "chest[facing=west]");
+			newcmd = newcmd.replaceAll("chest 5", "chest[facing=east]");
+			
+			///give @p[r=2] minecraft:paper 1 0 {NBT}  -> /give @p[distance=..2] minecraft:paper{NBT} 1
+			
+			// Aussi, jpense que ça pourra aider : 
+			///setblock ~ ~ ~ minecraft:trapped_chest 1 replace <NBT à ne pas toucher>
+			//->
+			///setblock ~ ~ ~ minecraft:trapped_chest[facing=north]<NBT à ne pas toucher> replace
+			
+			if(newcmd.matches("/{0,1}setblock ~ ~ ~ minecraft:.*chest[facing=north] replace .+")){
+				
+				newcmd = newcmd.replaceAll("replace ", "");
+				newcmd = new String(newcmd + " replace");
+			
+			}
+			
+			if(newcmd.matches("/{0,1}setblock ~ ~ ~ mob_spawner 0 replace .+")){
+				
+				newcmd = newcmd.replaceAll("mob_spawner 0 replace ", "spawner ");
+				newcmd = new String(newcmd + " replace");
+			
+			}
+
 			
 			newcmd = newcmd.replaceAll("minecraft:stone 0", "minecraft:stone");
 			newcmd = newcmd.replaceAll("minecraft:stone 1", "minecraft:granite");
@@ -110,24 +145,169 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 			newcmd = newcmd.replaceAll("minecraft:stone 4", "minecraft:polished_diorite");
 			newcmd = newcmd.replaceAll("minecraft:stone 5", "minecraft:andesite");
 			newcmd = newcmd.replaceAll("minecraft:stone 6", "minecraft:polished_andesite");
-		}
-		
-		if(oldcmd.contains("fill")){
 			newcmd = newcmd.replaceAll("minecraft:air 0 replace", "minecraft:air replace");
+			
+			
+			newcmd = newcmd.replaceAll("stonebrick", "stone_bricks");
+			newcmd = newcmd.replaceAll("stained_glass 2", "magenta_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 3", "light_blue_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 8", "light_gray_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 9", "cyan_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 10", "purple_stained_glass");
+			newcmd = newcmd.replaceAll("double_stone_slab", "smooth_stone_slab[type=double]");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 14", "red_terracotta");
+			newcmd = newcmd.replaceAll("dirt 0 replace", "dirt replace");
+			
+			newcmd = newcmd.replaceAll("fence", "oak_fence");
+			newcmd = newcmd.replaceAll("Air", "air");
+			newcmd = newcmd.replaceAll("wool 0", "white_wool");
+			newcmd = newcmd.replaceAll("wool 1", "orange_wool");
+			newcmd = newcmd.replaceAll("wool 2", "magenta_wool");
+			newcmd = newcmd.replaceAll("wool 3", "light_blue_wool");
+			newcmd = newcmd.replaceAll("wool 4", "yellow_wool");
+			newcmd = newcmd.replaceAll("wool 5", "lime_wool");
+			newcmd = newcmd.replaceAll("wool 6", "pink_wool");
+			newcmd = newcmd.replaceAll("wool 7", "gray_wool");
+			newcmd = newcmd.replaceAll("wool 8", "light_gray_wool");
+			newcmd = newcmd.replaceAll("wool 9", "cyan_wool");
+			newcmd = newcmd.replaceAll("wool 10", "purple_wool");
+			newcmd = newcmd.replaceAll("wool 11", "blue_wool");
+			newcmd = newcmd.replaceAll("wool 12", "brown_wool");
+			newcmd = newcmd.replaceAll("wool 13", "green_wool");
+			newcmd = newcmd.replaceAll("wool 14", "red_wool");
+			newcmd = newcmd.replaceAll("wool 15", "black_wool");
+			newcmd = newcmd.replaceAll("c=", "limit=");
+			
+			//(De manière générale, le data d'un cube de couleur sera toujours la même couleur, donc 
+				//	wool 10 = purple_wool
+				//	carpet 10 = purple_carpet
+				//  stained_glass 10 = purple_stained_glass
+				//	stained_glass_pane 10 = purple_stained_glass_pane
+				//	stained_hardened_clay 10 = purple_terracotta
 		}
 		
-		//if(oldcmd.contains("particle")){
-		//	newcmd = newcmd.replaceAll("particle blockcrack", "particle block oak_planks");
-		//}
+		if(oldcmd.contains("playsound") || oldcmd.contains("particle")){
+			newcmd = newcmd.replaceAll("endRod", "end_rod");
+			newcmd = newcmd.replaceAll("magicCrit ", "enchanted_hit");
+			newcmd = newcmd.replaceAll("endRod", "end_rod");
+			newcmd = newcmd.replaceAll("witchMagic", "witch");
+			newcmd = newcmd.replaceAll("happyVillager", "happy_villager");
+			newcmd = newcmd.replaceAll("dripLava", "dripping_lava");
+			newcmd = newcmd.replaceAll("dripWater", "dripping_water");
+			newcmd = newcmd.replaceAll("dragonbreath", "dragon_breath");
+			newcmd = newcmd.replaceAll("enchantmenttable", "enchant");
+			newcmd = newcmd.replaceAll("instantSpell", "instant_effect");
+			
+			
+			///particle blockcrack <plein de chiffres etc à pas changer> 155 -> /particle block quartz_block <plein de chiffres etc à pas changer>
+			if(newcmd.matches("/{0,1}particle blockcrack .+ 155")){
+				
+				newcmd = newcmd.replaceAll("blockcrack", "block quartz_block");
+				newcmd = newcmd.substring(0, newcmd.length()-4); // suppression du 155 et du dernier espace
+			}
+			
+			
+			///particle blockcrack <truc> 101 -> /particle block iron_bars <truc>
+			if(newcmd.matches("/{0,1}particle blockcrack .+ 101")){
+				
+				newcmd = newcmd.replaceAll("blockcrack", "block iron_bars");
+				newcmd = newcmd.substring(0, newcmd.length()-4); // suppression du 101 et du dernier espace
+			}
+			
+			//Dès que tu vois un /playsound ou un /particle avec dedans un @e, tu changes ça en @a
+			if(newcmd.matches("/{0,1}(particle|playsound) .+ @e.*")){
+				
+				newcmd = newcmd.replaceAll("@e", "@a");
+			}
+			
+			
+			
+		}
+		
+		if(oldcmd.contains("give")){
+			if(newcmd.contains("give @p iron_ingot 1 0 {skin")) {
+				
+				newcmd = newcmd.replaceAll("iron_ingot 1 0 ", "minecraft:iron_ingot");
+				newcmd = new String(newcmd + " 1");
+			}
+		}
+			
+		if(oldcmd.contains("summon")){
+			newcmd = newcmd.replaceAll("Villager", "villager");
+			//newcmd = newcmd.replaceAll("CustomName:NAME", "CustomName:'{\"text\":\"NAME\"}'");
+		}
+
+		newcmd = newcmd.replaceAll("testforblock", "execute if block");
+		newcmd = newcmd.replaceAll("testforblocks", "execute if blocks");
+		newcmd = newcmd.replaceAll("testfor @e", "execute if entity @e");
+		
+		
+		//   /clear @p *id* 0 *n* {NBT}
+		//-> /clear @p *id*{NBT} *n*
+		
+		// vérifier si marche
+		if(newcmd.matches("/{0,1}clear @p .+ 0 .+ .+")){
+			
+			String parts[] = newcmd.split(" ");
+			newcmd = new String(parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[5] + " " + parts[4]);
+		}
+		
+		
+		
+
+//Crilian mercredi dernier à 16:12
+//Dans les sélecteurs :
+//avant on avait : 
+//@e[score_<ObjectiveName>_min=<Min>,score_<ObjectiveName>=<Max>]
+//Maintenant on a :
+//@e[scores={<ObjectiveName>=<Min>..<Max>}]
+ 
+// gros, par exemple, si on veut que ça sélectionne l'entité quand invocTime est entre 250 et 500 :
+//AVANT :
+//@e[score_invocTime _min=250,score_invocTime =500]
+//MAINTENANT :
+//@e[scores={invocTime=250..500}]
+//Normalement ça règlera tous les soucis dans les donjons utilisant ça
+
+// >>> à faire
+
+		newcmd = newcmd.replaceAll("small_Fireball", "small_fireball");
+		newcmd = newcmd.replaceAll("fireworksSpark", "firework");
+
+		//Dès que tu vois un /effect @e[bidule] effect time power, tu rejoutes un "give", pour faire /effect give @e[bidule] effect time power
+		//SAUF si le temps = 0, alors tu replaces par le tout par /effect clear @e[bidule] effect
+		
+		// >>> temps ???
+		
+		newcmd = newcmd.replaceAll("evocation_fangs", "evoker_fangs");
+		newcmd = newcmd.replaceAll("vindication_illager", "vindicator");
+		newcmd = newcmd.replaceAll("Zombie", "zombie");
+		newcmd = newcmd.replaceAll("Skeleton", "skeleton");
+		
+		//Si  tu vois un truc : scoreboard players test @a[r=400] donjonfm 1 3 (avec un TEST dedans), 
+		// tu dois tout transformer en /execute if entity @a[r=400,scores={donjonfm=1..3}] 
+		// (Le sélecteur reste identique, avec un argument scores= en plus, avec le min et max)
+		
+		//newcmd = newcmd.replaceAll("scoreboard players test @a", "execute if entity @a");
+		
+		
+		
 		
 		if(!oldcmd.equals(newcmd)) {
 			cmdblock.setCommand(newcmd);
 			cmdblock.update();
-			String alert = ChatColor.GOLD + "Cmd block modifié de : " + ChatColor.WHITE + oldcmd + ChatColor.GOLD + " à : " + ChatColor.WHITE + newcmd;
-			player.sendMessage(alert);
-			Plugin.LOG.info("Cmd block modifié de : " + oldcmd + " à : " + newcmd);
 			Location loc = player.getLocation();
-			Plugin.LOG.info("Location : x=" + loc.getX() + ", y=" + loc.getY() + ", z=" + loc.getZ());
+			
+			String alertCmdColor = ChatColor.GOLD + "Cmd block modifié de : " + ChatColor.WHITE + oldcmd + ChatColor.GOLD + " à : " + ChatColor.WHITE + newcmd;
+			String alertCmd = "Cmd block modifié de : " + oldcmd + " à : " + newcmd;
+			String alertLoc = "Location : x=" + loc.getX() + ", y=" + loc.getY() + ", z=" + loc.getZ() + ", w=" + loc.getWorld().getName();
+			
+			player.sendMessage(alertCmdColor);
+			player.sendMessage(alertLoc);
+			
+			Plugin.LOG.info(alertCmd);
+			Plugin.LOG.info(alertLoc);
+			
 			return true;
 		} else {
 			return false;
