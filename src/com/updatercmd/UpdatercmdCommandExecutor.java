@@ -80,14 +80,16 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 		String oldcmd = cmdblock.getCommand();
 		String newcmd = oldcmd;
 		
-		//Et je confirme, c'est plus sûr et totalement fonctionnel si on replace tous les 
-		// /execute selecteur ~ ~ ~ /command 
-		// par /execute as selecteur at selecteur run command
-		
-		newcmd = oldcmd.replaceAll("execute @", "execute as @");
 		newcmd = newcmd.replaceAll("r=","distance=..");
-		newcmd = newcmd.replaceAll("~ ~ ~ /","run ");
 		newcmd = newcmd.replaceAll("type=Player","type=player");
+		
+		
+		if(newcmd.matches("/{0,1}execute @.+ ~ ~ ~ /.+")){
+			String parts[] = newcmd.split(" ");
+			newcmd = oldcmd.replaceAll("execute @", "execute as @");
+			newcmd = newcmd.replaceAll("~ ~ ~ /", new String("at " + parts[1] + " positioned ~ ~ ~ run "));
+		}
+		
 		
 		if(newcmd.matches(".+minecraft:[a-zA-Z_]+ [0-9] [0-9]$")){
 			// Si contient un ou plusieurs caractères suivi de minecraft: suivi d'un ou plusieurs caractères alphabétiques (symbole _ accepté)
@@ -149,13 +151,43 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 			
 			
 			newcmd = newcmd.replaceAll("stonebrick", "stone_bricks");
+			
+			newcmd = newcmd.replaceAll("stained_glass 0", "white_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 1", "orange_stained_glass");
 			newcmd = newcmd.replaceAll("stained_glass 2", "magenta_stained_glass");
 			newcmd = newcmd.replaceAll("stained_glass 3", "light_blue_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 4", "yellow_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 5", "lime_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 6", "pink_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 7", "gray_stained_glass");
 			newcmd = newcmd.replaceAll("stained_glass 8", "light_gray_stained_glass");
 			newcmd = newcmd.replaceAll("stained_glass 9", "cyan_stained_glass");
 			newcmd = newcmd.replaceAll("stained_glass 10", "purple_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 11", "blue_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 12", "brown_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 13", "green_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 14", "red_stained_glass");
+			newcmd = newcmd.replaceAll("stained_glass 15", "black_stained_glass");
+			
 			newcmd = newcmd.replaceAll("double_stone_slab", "smooth_stone_slab[type=double]");
+			
+			newcmd = newcmd.replaceAll("stained_hardened_clay 0", "white_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 1", "orange_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 2", "magenta_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 3", "light_blue_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 4", "yellow_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 5", "lime_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 6", "pink_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 7", "gray_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 8", "light_gray_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 9", "cyan_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 10", "purple_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 11", "blue_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 12", "brown_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 13", "green_terracotta");
 			newcmd = newcmd.replaceAll("stained_hardened_clay 14", "red_terracotta");
+			newcmd = newcmd.replaceAll("stained_hardened_clay 15", "black_terracotta");
+			
 			newcmd = newcmd.replaceAll("dirt 0 replace", "dirt replace");
 			
 			newcmd = newcmd.replaceAll("fence", "oak_fence");
@@ -224,19 +256,40 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 			
 		}
 		
-		if(oldcmd.contains("give")){
+		if(oldcmd.contains("give") || oldcmd.contains("clear")){
 			if(newcmd.contains("give @p iron_ingot 1 0 {skin")) {
 				
 				newcmd = newcmd.replaceAll("iron_ingot 1 0 ", "minecraft:iron_ingot");
 				newcmd = new String(newcmd + " 1");
 			}
 		}
-			
-		if(oldcmd.contains("summon")){
-			newcmd = newcmd.replaceAll("Villager", "villager");
-			//newcmd = newcmd.replaceAll("CustomName:NAME", "CustomName:'{\"text\":\"NAME\"}'");
+		
+		System.out.println(newcmd);
+		
+		// Changement du Name:name en Name:{text:"name"}
+		if(newcmd.contains("display:" + '{' + "Name:\"")){
+			String parts[] = newcmd.split("Name:\"");
+			String parts2[] = parts[1].split("\""); // parts2[0] = NOM
+			newcmd = newcmd.replaceAll("Name" + ':' + "\"", "Name:\'{\"text\":\"");
+			newcmd = newcmd.replaceAll(parts2[0] + "\"", parts2[0] + "\"" + '}' + "'");
+			newcmd = newcmd.replaceAll(" 1 0", "");
 		}
+		
+		
 
+		// Changement de Lore ["","",""] en Lore [text:"", text:""]...
+		if(newcmd.contains("Lore:" + '[')){ 
+			String parts[] = newcmd.split("Lore:" + "\\[");
+			String parts2[] = parts[1].split("\\]");
+			String parts3[] = parts2[0].split("\\,"); // contient chaque phrase de lore quotes comprises
+			
+			for(int i = 0; i < parts3.length; i++) { // pour chaque phrase on rajoute ce qu'il manque
+				newcmd = newcmd.replaceAll(parts3[i], "'" + '{' + "\"text\":" + parts3[i] + '}' + "'");
+			}
+			
+		}
+		
+		newcmd = newcmd.replaceAll("Villager", "villager");
 		newcmd = newcmd.replaceAll("testforblock", "execute if block");
 		newcmd = newcmd.replaceAll("testforblocks", "execute if blocks");
 		newcmd = newcmd.replaceAll("testfor @e", "execute if entity @e");
@@ -249,7 +302,14 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 		if(newcmd.matches("/{0,1}clear @p .+ 0 .+ .+")){
 			
 			String parts[] = newcmd.split(" ");
-			newcmd = new String(parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[5] + " " + parts[4]);
+			String partsNbt[] = newcmd.split("{");
+			
+			newcmd = new String(parts[0] + " " + parts[1] + " " + parts[2]); // clear @p id
+			
+			
+			// Reconstitution du NBT
+			newcmd = new String(newcmd + "{" + partsNbt[1] + " " + parts[4]);
+			
 		}
 		
 		
@@ -273,16 +333,17 @@ public class UpdatercmdCommandExecutor implements CommandExecutor {
 
 		newcmd = newcmd.replaceAll("small_Fireball", "small_fireball");
 		newcmd = newcmd.replaceAll("fireworksSpark", "firework");
+		newcmd = newcmd.replaceAll("fireworks_rocket", "firework_rocket");
 
 		//Dès que tu vois un /effect @e[bidule] effect time power, tu rejoutes un "give", pour faire /effect give @e[bidule] effect time power
 		//SAUF si le temps = 0, alors tu replaces par le tout par /effect clear @e[bidule] effect
-		
-		// >>> temps ???
 		
 		newcmd = newcmd.replaceAll("evocation_fangs", "evoker_fangs");
 		newcmd = newcmd.replaceAll("vindication_illager", "vindicator");
 		newcmd = newcmd.replaceAll("Zombie", "zombie");
 		newcmd = newcmd.replaceAll("Skeleton", "skeleton");
+		newcmd = newcmd.replaceAll("endermen", "enderman");
+		newcmd = newcmd.replaceAll("irongolem", "iron_golem");
 		
 		//Si  tu vois un truc : scoreboard players test @a[r=400] donjonfm 1 3 (avec un TEST dedans), 
 		// tu dois tout transformer en /execute if entity @a[r=400,scores={donjonfm=1..3}] 
